@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Update customer</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+<div class="container">
+  <h3>UPDATE CUSTOMER</h3>
+  <form th:action="'/customer/' + ${customer.getId()} + '/update'" method="post">
+    <div style="display: flex;">
+      <div style="margin-right: 20px">
+        <div class="mb-3 w-100">
+          <label for="firstname" class="form-label">Firstname:</label>
+          <input type="text" class="form-control" id="firstname" name="firstname" th:value="${customer.getFirstName()}" required>
+        </div>
+        <div class="mb-3 w-100">
+          <label for="lastname" class="form-label">Lastname:</label>
+          <input type="text" class="form-control" id="lastname" name="lastname" th:value="${customer.getLastName()}" required>
+        </div>
+        <div class="mb-3 w-100">
+          <label for="email" class="form-label">E-Mail:</label>
+          <input type="email" class="form-control" id="email" name="email" th:value="${customer.getEmail()}" required>
+        </div>
+        <div class="mb-3 w-100">
+          <label for="phone" class="form-label">Phone:</label>
+          <input type="tel" class="form-control" id="phone" name="phone" th:value="${customer.getPhone()}" required>
+        </div>
+        <div class="mb-3 w-100">
+          <label for="address" class="form-label">Address:</label>
+          <input type="text" class="form-control" id="address" name="address" th:value="${customer.getAddress()}" required>
+        </div>
+      </div>
+
+      <div>
+        <div class="mb-3 w-100">
+          <label for="numberRooms" class="form-label">Number of rooms:</label>
+          <input type="number" class="form-control" id="numberRooms" name="numberRooms" min="0"
+                 th:value="${customer.getNumberRooms()}" required>
+        </div>
+        <div class="mb-3 w-100">
+          <label for="floor" class="form-label">Floor:</label>
+          <input type="number" class="form-control" id="floor" name="floor" min="1" th:value="${customer.getFloor()}" required>
+        </div>
+        <div class="mb-3 w-100">
+          <label for="price" class="form-label">Price:</label>
+          <input type="number" class="form-control" id="price" name="price" min="0" th:value="${customer.getPrice()}" required>
+        </div>
+        <div>
+          <label for="district" class="form-label">District:</label>
+          <select class="form-select w-100 mb-3" aria-label="Default select example" id="district" name="district" required>
+            <option value="district0">Open this select menu</option>
+            <div th:each="district : ${districts}">
+              <option th:value="${district.getId()}" th:text="${district.getNameDistrict()}"
+              th:selected="${customer.getDistrict().getId()} == ${district.getId()}"></option>
+            </div>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+    <div class="container">
+        <h2 th:text="${text}"></h2>
+    </div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>

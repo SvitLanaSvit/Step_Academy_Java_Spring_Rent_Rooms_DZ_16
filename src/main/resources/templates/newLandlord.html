@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+<div class="container">
+  <form action="/landlords/newLandlord" method="post">
+    <div class="mb-3 w-25">
+      <label for="firstname" class="form-label">Firstname:</label>
+      <input type="text" class="form-control" id="firstname" name="firstname" required>
+    </div>
+    <div class="mb-3 w-25">
+      <label for="lastname" class="form-label">Lastname:</label>
+      <input type="text" class="form-control" id="lastname" name="lastname" required>
+    </div>
+    <div class="mb-3 w-25">
+      <label for="email" class="form-label">E-Mail:</label>
+      <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="mb-3 w-25">
+      <label for="phone" class="form-label">Phone:</label>
+      <input type="tel" class="form-control" id="phone" name="phone" required>
+    </div>
+    <div class="mb-3 w-25">
+      <label for="address" class="form-label">Address:</label>
+      <input type="text" class="form-control" id="address" name="address" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>

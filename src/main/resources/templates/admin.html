@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+  <div class="container">
+      <div class="alert alert-primary">
+          <a href="/admin/customers">ALL CUSTOMERS</a>
+      </div>
+      <div class="alert alert-primary">
+          <a href="/customers/newCustomer">NEW CUSTOMER</a>
+      </div>
+      <div class="alert alert-primary">
+          <a href="/district/newDistrict">NEW DISTRICT</a>
+      </div>
+      <div class="alert alert-warning">
+          <a href="/landlords/newLandlord">NEW LANDLORD</a>
+      </div>
+  </div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>

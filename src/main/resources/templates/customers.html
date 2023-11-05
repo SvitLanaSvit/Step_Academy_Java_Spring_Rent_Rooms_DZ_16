@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+    <meta charset="UTF-8">
+    <title>Customers</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+    <div class="container">
+      <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+              <th>Id</th>
+              <th>Firstname</th>
+              <th>Lastname</th>
+              <th>E-Mail</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Number of rooms</th>
+              <th>Floor</th>
+              <th>Price</th>
+              <th>District</th>
+            </tr>
+        </thead>
+        <tbody>
+          <div th:each="customer : ${customers}">
+            <tr>
+              <td th:text="${customer.getId()}"></td>
+              <td th:text="${customer.getFirstName()}"></td>
+              <td th:text="${customer.getLastName()}"></td>
+              <td th:text="${customer.getEmail()}"></td>
+              <td th:text="${customer.getPhone()}"></td>
+              <td th:text="${customer.getAddress()}"></td>
+              <td th:text="${customer.getNumberRooms()}"></td>
+              <td th:text="${customer.getFloor()}"></td>
+              <td th:text="${customer.getPrice()}"></td>
+              <td th:text="${customer.getDistrict()}"></td>
+            </tr>
+          </div>
+        </tbody>
+      </table>
+    </div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>
