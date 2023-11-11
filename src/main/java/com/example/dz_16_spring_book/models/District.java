@@ -25,4 +25,8 @@ public class District {
     @OneToMany(mappedBy = "district", cascade = {MERGE, PERSIST, REFRESH},
             orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Customer> customers;
+
+    @OneToMany(mappedBy = "district", cascade = {MERGE, PERSIST, REFRESH},
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Apartment> apartments;
 }

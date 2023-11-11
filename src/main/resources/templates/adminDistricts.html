@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Admin Districts</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+<div class="container">
+  <h3>DISTRICTS</h3>
+  <div th:if="${message} != null" class="alert alert-info" th:text="${message}"></div>
+  <a href="/districts/newDistrict" class="btn btn-success">NEW DISTRICT</a>
+  <table class="table table-hover table-striped">
+    <thead>
+    <tr>
+      <th>Id</th>
+      <th>District</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <div th:each="district : ${districts}">
+      <tr>
+        <td th:text="${district.getId()}"></td>
+        <td th:text="${district.getNameDistrict()}"></td>
+        <td>
+          <div class="btn-group">
+            <a th:href="'/district/' + ${district.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
+            <a th:onclick="'removeDistrict(' + ${district.getId()} + ')'" class="btn btn-sm btn-danger">REMOVE</a>
+          </div>
+        </td>
+      </tr>
+    </div>
+    </tbody>
+  </table>
+</div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>
+<script>
+  function removeDistrict(id){
+    const confirmation = confirm('Are you sure to remove district with id = ' + id + '?');
+    if(confirmation){
+      window.location.href ='/district/' + id + '/remove';
+    }
+  }
+</script>

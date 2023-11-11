@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Update Apartment</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+<div class="container">
+  <h3>UPDATE APARTMENT</h3>
+  <form th:action="'/apartment/' + ${apartment.getId()} + '/update'" method="post">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between">
+      <div style="width: 25%">
+        <div class="mb-3 w-100">
+          <label for="address" class="form-label">Address:</label>
+          <input type="text" class="form-control" id="address" name="address"
+                 th:value="${apartment.getAddress()}" required>
+        </div>
+        <div class="mb-3 w-100">
+          <label for="bedrooms" class="form-label">Bedrooms:</label>
+          <input type="number" class="form-control" id="bedrooms" min="1"
+                 th:value="${apartment.getBedrooms()}" name="bedrooms" required>
+        </div>
+        <div class="mb-3 w-100">
+          <label for="rentAmount" class="form-label">Rent amount:</label>
+          <input type="number" class="form-control" id="rentAmount" name="rentAmount" min="0"
+                 th:value="${apartment.getRentAmount()}" required>
+        </div>
+        <div>
+          <label for="landlord" class="form-label">Landlord:</label>
+          <select class="form-select w-100 mb-3" aria-label="Default select example" id="landlord" name="landlord" required>
+            <option value="0" selected>Open this select menu</option>
+            <div th:each="landlord : ${landlords}">
+              <option th:value="${landlord.getId()}" th:text="${landlord.getFirstName()} + ' ' + ${landlord.getLastName()}"
+                      th:selected="${apartment != null && apartment.getLandlord() != null
+                  && apartment.getLandlord().getId().equals(landlord.getId())}"
+              ></option>
+            </div>
+          </select>
+        </div>
+        <div>
+          <label for="district" class="form-label">District:</label>
+          <select class="form-select w-100 mb-3" aria-label="Default select example" id="district" name="district" required>
+            <option value="0" selected>Open this select menu</option>
+            <div th:each="district : ${districts}">
+              <option th:value="${district.getId()}" th:text="${district.getNameDistrict()}"
+                      th:selected="${apartment != null && apartment.getDistrict() != null
+                  && apartment.getDistrict().getId().equals(district.getId())}"
+              ></option>
+            </div>
+          </select>
+        </div>
+      </div>
+      <div style="width: 70%">
+        <div class="mb-3 w-100">
+          <label for="description" class="form-label">Description:</label>
+          <textarea class="form-control" placeholder="Leave a description here..."
+                id="description" rows="10" name="description" th:text="${apartment.getDescription()}" required></textarea>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>

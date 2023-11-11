@@ -50,10 +50,11 @@
         <div>
           <label for="district" class="form-label">District:</label>
           <select class="form-select w-100 mb-3" aria-label="Default select example" id="district" name="district" required>
-            <option value="district0">Open this select menu</option>
+            <option value="0">Open this select menu</option>
             <div th:each="district : ${districts}">
               <option th:value="${district.getId()}" th:text="${district.getNameDistrict()}"
-              th:selected="${customer.getDistrict().getId()} == ${district.getId()}"></option>
+              th:selected="${customer != null && customer.getDistrict() != null && customer.getDistrict().getId().equals(district.getId())}"
+              ></option>
             </div>
           </select>
         </div>

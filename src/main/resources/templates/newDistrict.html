@@ -7,12 +7,16 @@
 <header th:insert="section/header ::header"></header>
 <body>
   <div class="container">
-    <form action="/district/newDistrict" method="post">
+    <div th:if="${message} != null" class="alert alert-info" th:text="${message}"></div>
+    <form action="/districts/newDistrict" method="post">
       <div class="mb-3 w-25">
         <label for="nameDistrict" class="form-label">District:</label>
         <input type="text" class="form-control" id="nameDistrict" name="nameDistrict" required>
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <div class="btn-group">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a th:href="'/admin/districts'" class="btn btn-secondary">Back</a>
+      </div>
     </form>
   </div>
 </body>

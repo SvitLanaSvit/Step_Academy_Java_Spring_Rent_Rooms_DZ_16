@@ -28,6 +28,11 @@ public class Apartment {
     private int bedrooms;
     @Column(columnDefinition = "TEXT")
     private String description;
+    @ManyToOne(cascade = {MERGE, PERSIST, REFRESH}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "district_id", referencedColumnName = "id")
+    private District district;
+    @Column(name = "is_rented", nullable = false, columnDefinition = "boolean default false")
+    private boolean isRented = false;
 
     @OneToMany(mappedBy = "apartment", cascade = {MERGE, PERSIST, REFRESH},
             orphanRemoval = true, fetch = FetchType.LAZY)

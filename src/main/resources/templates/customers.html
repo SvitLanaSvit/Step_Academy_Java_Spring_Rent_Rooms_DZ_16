@@ -7,6 +7,57 @@
 <header th:insert="section/header ::header"></header>
 <body>
     <div class="container">
+      <div style="display: flex; justify-content: space-between">
+        <form action="/customers" method="get">
+          <div>
+            <button type="submit" class="btn btn-sm btn-success">Show All</button>
+          </div>
+        </form>
+        <form action="/customers/searchByName" method="post">
+          <div style="display: flex">
+            <div class="mb-3 w-80" style="margin-right: 10px">
+              <input type="text" class="form-control" id="fullname" name="fullname">
+            </div>
+            <div>
+              <button type="submit" class="btn btn-sm btn-primary">Search by name</button>
+            </div>
+          </div>
+        </form>
+        <form action="/customers/searchByPhone" method="post">
+          <div style="display: flex">
+            <div class="mb-3 w-80" style="margin-right: 10px">
+              <input type="text" class="form-control" id="phoneNumber" name="phoneNumber">
+            </div>
+            <div>
+              <button type="submit" class="btn btn-sm btn-primary">Search by phone number</button>
+            </div>
+          </div>
+        </form>
+        <form action="/customers/searchByAnother" method="post">
+          <div>
+            <div class="mb-3 w-80" style="margin-right: 10px">
+              <label for="rooms">Count of rooms:</label>
+              <input type="number" class="form-control" id="rooms" min="1" value="1" name="rooms">
+            </div>
+            <div class="mb-3 w-80" style="margin-right: 10px">
+              <label for="district" class="form-label">District:</label>
+              <select class="form-select w-100 mb-3" aria-label="Default select example" id="district" name="district" required>
+                <option value="0" selected>Open this select menu</option>
+                <div th:each="district : ${districts}">
+                  <option th:value="${district.getId()}" th:text="${district.getNameDistrict()}"></option>
+                </div>
+              </select>
+            </div>
+            <div class="mb-3 w-80" style="margin-right: 10px">
+              <label for="price">Price:</label>
+              <input type="number" class="form-control" id="price" min="0" value="0.00" name="price">
+            </div>
+            <div>
+              <button type="submit" class="btn btn-sm btn-primary">Search</button>
+            </div>
+          </div>
+        </form>
+      </div>
       <table class="table table-hover table-striped">
         <thead>
             <tr>

@@ -7,6 +7,8 @@
 <header th:insert="section/header ::header"></header>
 <body>
 <div class="container">
+  <h3>CUSTOMERS</h3>
+  <a href="/customers/newCustomer" class="btn btn-success">NEW CUSTOMER</a>
   <table class="table table-hover table-striped">
     <thead>
     <tr>
@@ -39,7 +41,7 @@
         <td>
           <div class="btn-group">
             <a th:href="'/customer/' + ${customer.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
-            <a th:href="'/customer/' + ${customer.getId()} + '/remove'" class="btn btn-sm btn-danger">REMOVE</a>
+            <a th:onclick="'removeCustomer(' + ${customer.getId()} + ')'" class="btn btn-sm btn-danger">REMOVE</a>
           </div>
         </td>
       </tr>
@@ -50,3 +52,11 @@
 </body>
 <footer th:insert="section/footer ::footer"></footer>
 </html>
+<script>
+  function removeCustomer(id){
+    const confirmation = confirm('Are you sure to remove customer with id = ' + id + '?');
+    if(confirmation){
+      window.location.href ='/customer/' + id + '/remove';
+    }
+  }
+</script>

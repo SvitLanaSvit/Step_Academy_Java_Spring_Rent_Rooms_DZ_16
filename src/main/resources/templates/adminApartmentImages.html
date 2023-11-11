@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Customers</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+<div class="container">
+  <h3>APARTMENTS</h3>
+  <a href="/apartments/newImage" class="btn btn-success">NEW APARTMENT IMAGE</a>
+  <table class="table table-hover table-striped">
+    <thead>
+    <tr>
+      <th>Id</th>
+      <th>Apartment</th>
+      <th>Image</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <div th:each="image : ${images}">
+      <tr>
+        <td th:text="${image.getId()}"></td>
+        <td th:text="${image.getApartmentInfo()}"></td>
+        <td>
+          <img style="width: 150px" th:src="${image.getImageLink()}" th:alt="${image.getId()}">
+        </td>
+        <td>
+          <div class="btn-group">
+            <a th:href="'/apartmentImage/' + ${image.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
+            <a th:onclick="'removeApartmentImage(' + ${image.getId()} + ')'" class="btn btn-sm btn-danger">REMOVE</a>
+          </div>
+        </td>
+      </tr>
+    </div>
+    </tbody>
+  </table>
+</div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>
+<script>
+  function removeApartmentImage(id){
+    const confirmation = confirm('Are you sure to remove apartment`s image with id = ' + id + '?');
+    if(confirmation){
+      window.location.href ='/apartmentImage/' + id + '/remove';
+    }
+  }
+</script>

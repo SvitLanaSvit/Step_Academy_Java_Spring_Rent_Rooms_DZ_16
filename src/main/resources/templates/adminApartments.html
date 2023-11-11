@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Customers</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+<div class="container">
+  <h3>APARTMENTS</h3>
+  <a href="/apartments/newApartment" class="btn btn-success">NEW APARTMENT</a>
+  <table class="table table-hover table-striped">
+    <thead>
+    <tr>
+      <th>Id</th>
+      <th>Landlord</th>
+      <th>Address</th>
+      <th>District</th>
+      <th>Bedrooms</th>
+      <th>Rent amount</th>
+      <th>Description</th>
+      <th>Is rented</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <div th:each="apartment : ${apartments}">
+      <tr>
+        <td th:text="${apartment.getId()}"></td>
+        <td th:text="${apartment.getLandlord()}"></td>
+        <td th:text="${apartment.getAddress()}"></td>
+        <td th:text="${apartment.getDistrict()}"></td>
+        <td th:text="${apartment.getBedrooms()}"></td>
+        <td th:text="${apartment.getRentAmount()}"></td>
+        <td th:text="${#strings.length(apartment.getDescription()) > 45 ?
+        #strings.substring(apartment.getDescription(), 0, 45) + '...' : apartment.getDescription()}"></td>
+        <td th:text="${apartment.isRented()}"></td>
+        <td>
+          <div class="btn-group">
+            <a th:href="'/apartment/' + ${apartment.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
+            <a th:onclick="'removeApartment(' + ${apartment.getId()} + ')'" class="btn btn-sm btn-danger">REMOVE</a>
+          </div>
+        </td>
+      </tr>
+    </div>
+    </tbody>
+  </table>
+</div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>
+<script>
+  function removeApartment(id){
+    const confirmation = confirm('Are you sure to remove apartment with id = ' + id + '?');
+    if(confirmation){
+      window.location.href ='/apartment/' + id + '/remove';
+    }
+  }
+</script>

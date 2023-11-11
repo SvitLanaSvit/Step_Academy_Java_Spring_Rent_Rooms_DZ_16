@@ -2,31 +2,32 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="section/head ::head">
   <meta charset="UTF-8">
-  <title>New landlord</title>
+  <title>Update landlord</title>
 </head>
 <header th:insert="section/header ::header"></header>
 <body>
 <div class="container">
-  <form action="/landlords/newLandlord" method="post">
+  <h3>UPDATE LANDLORD</h3>
+  <form th:action="'/landlord/' + ${landlord.getId()} + '/update'" method="post">
     <div class="mb-3 w-25">
       <label for="firstname" class="form-label">Firstname:</label>
-      <input type="text" class="form-control" id="firstname" name="firstname" required>
+      <input type="text" class="form-control" id="firstname" name="firstname" th:value="${landlord.getFirstName()}" required>
     </div>
     <div class="mb-3 w-25">
       <label for="lastname" class="form-label">Lastname:</label>
-      <input type="text" class="form-control" id="lastname" name="lastname" required>
+      <input type="text" class="form-control" id="lastname" name="lastname" th:value="${landlord.getLastName()}" required>
     </div>
     <div class="mb-3 w-25">
       <label for="email" class="form-label">E-Mail:</label>
-      <input type="email" class="form-control" id="email" name="email" required>
+      <input type="email" class="form-control" id="email" name="email" th:value="${landlord.getEmail()}" required>
     </div>
     <div class="mb-3 w-25">
       <label for="phone" class="form-label">Phone:</label>
-      <input type="tel" class="form-control" id="phone" name="phone" required>
+      <input type="tel" class="form-control" id="phone" name="phone" th:value="${landlord.getPhone()}" required>
     </div>
     <div class="mb-3 w-25">
       <label for="address" class="form-label">Address:</label>
-      <input type="text" class="form-control" id="address" name="address" required>
+      <input type="text" class="form-control" id="address" name="address" th:value="${landlord.getAddress()}" required>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>

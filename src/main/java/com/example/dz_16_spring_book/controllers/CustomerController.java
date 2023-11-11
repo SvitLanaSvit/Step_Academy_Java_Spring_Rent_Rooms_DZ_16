@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +26,89 @@ public class CustomerController {
 
     @GetMapping("/customers")
     public String getAllCustomers(Model model){
+        List<Customer> customers = getAllCustomer();
+        List<District> districts = getAllDistricts();
+
+        List<CustomerInfo> customerInfos = setCustomerInfos(customers, districts);
+        model.addAttribute("customers", customerInfos);
+        model.addAttribute("districts", districts);
+        return "customers";
+    }
+
+    @PostMapping("/customers/searchByName")
+    public String searchByName(@RequestParam String fullname, Model model){
+        List<Customer> customers = getAllCustomer();
+        List<District> districts = getAllDistricts();
+        List<CustomerInfo> customerInfos;
+
+        if(fullname != null){
+            List<Customer> filteredCustomers = customers
+                    .stream()
+                    .filter(item -> (item.getFirstName() + ' ' + item.getLastName()).toLowerCase()
+                            .contains(fullname.toLowerCase())).toList();
+            customerInfos = setCustomerInfos(filteredCustomers, districts);
+            model.addAttribute("customers", customerInfos);
+        }
+
+        model.addAttribute("districts", districts);
+        return "customers";
+    }
+
+    @PostMapping("/customers/searchByPhone")
+    public String searchByPhone(@RequestParam String phoneNumber, Model model){
+        List<Customer> customers = getAllCustomer();
+        List<District> districts = getAllDistricts();
+        List<CustomerInfo> customerInfos;
+
+        if(phoneNumber != null){
+            List<Customer> filteredCustomers = customers
+                    .stream()
+                    .filter(item -> item.getPhone().equals(phoneNumber))
+                    .toList();
+            customerInfos = setCustomerInfos(filteredCustomers, districts);
+            model.addAttribute("customers", customerInfos);
+        }
+        model.addAttribute("districts", districts);
+        return "customers";
+    }
+
+    @PostMapping("/customers/searchByAnother")
+    public String searchByAnother(
+            @RequestParam int rooms,
+            @RequestParam String district,
+            @RequestParam double price,
+            Model model){
+        List<Customer> customers = getAllCustomer();
+        List<District> districts = getAllDistricts();
+        List<Customer> filteredCustomers = new ArrayList<>();
+
+        Long id = Long.parseLong(district);
+
+        for(var customer : customers){
+            if(customer.getNumberRooms() == rooms
+                    && customer.getDistrict().getId().equals(id)
+                    && customer.getPrice() == price){
+                filteredCustomers.add(customer);
+            }
+        }
+        model.addAttribute("districts", districts);
+        model.addAttribute("customers", filteredCustomers);
+        return "customers";
+    }
+
+    private List<Customer> getAllCustomer(){
         List<Customer> customers = new ArrayList<>();
         customerRepository.findAll().forEach(item -> customers.add(item));
+        return customers;
+    }
 
+    private List<District> getAllDistricts(){
         List<District> districts = new ArrayList<>();
         districtRepository.findAll().forEach(item -> districts.add(item));
+        return districts;
+    }
 
+    private List<CustomerInfo> setCustomerInfos(List<Customer> customers, List<District> districts){
         List<CustomerInfo> customerInfos = new ArrayList<>();
         for (var customer : customers) {
             CustomerInfo customerInfo = new CustomerInfo();
@@ -54,7 +133,6 @@ public class CustomerController {
 
             customerInfos.add(customerInfo);
         }
-        model.addAttribute("customers", customerInfos);
-        return "customers";
+        return customerInfos;
     }
 }

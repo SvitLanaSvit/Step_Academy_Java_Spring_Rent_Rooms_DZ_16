@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Admin Landlords</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+<div class="container">
+  <h3>LANDLORDS</h3>
+  <a href="/landlords/newLandlord" class="btn btn-success">NEW LANDLORD</a>
+  <table class="table table-hover table-striped">
+    <thead>
+    <tr>
+      <th>Id</th>
+      <th>Firstname</th>
+      <th>Lastname</th>
+      <th>E-Mail</th>
+      <th>Phone</th>
+      <th>Address</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <div th:each="landloard : ${landlords}">
+      <tr>
+        <td th:text="${landloard.getId()}"></td>
+        <td th:text="${landloard.getFirstName()}"></td>
+        <td th:text="${landloard.getLastName()}"></td>
+        <td th:text="${landloard.getEmail()}"></td>
+        <td th:text="${landloard.getPhone()}"></td>
+        <td th:text="${landloard.getAddress()}"></td>
+        <td>
+          <div class="btn-group">
+            <a th:href="'/landlord/' + ${landloard.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
+            <a th:onclick="'removeLandlord(' + ${landloard.getId()} + ')'" class="btn btn-sm btn-danger">REMOVE</a>
+          </div>
+        </td>
+      </tr>
+    </div>
+    </tbody>
+  </table>
+</div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>
+<script>
+  function removeLandlord(id){
+    const confirmation = confirm('Are you sure to remove landlord with id = ' + id + '?');
+    if(confirmation){
+      window.location.href ='/landlord/' + id + '/remove';
+    }
+  }
+</script>
