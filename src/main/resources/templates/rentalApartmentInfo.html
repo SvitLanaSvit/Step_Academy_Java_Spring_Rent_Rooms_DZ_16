@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Rental Apartment Info</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<style>
+  .image-style {
+    height: 150px;
+    width: auto;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .enlarged-image {
+    position: fixed; /* Fixed position to keep it on top of everything */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%) scale(3); /* Center and enlarge */
+    z-index: 10000; /* Very high z-index to ensure it's on top */
+    transition: transform 0.3s ease, z-index 0s ease; /* Smooth transition for transform and instant for z-index */
+  }
+</style>
+<body>
+  <div class="container">
+    <h3 th:text="${rental.getBedrooms()} + '-x bedrooms apartment'"></h3>
+    <div>
+      <table class="table table-hover table-striped-column">
+        <thead>
+          <tr>
+            <th>District</th>
+            <th>Address</th>
+            <th>Rent amount, &euro;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td th:text="${rental.getDistrict()}"></td>
+            <td th:text="${rental.getAddress()}"></td>
+            <td th:text="${rental.getRentAmount()}"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <p th:text="${rental.getDescription()}"></p>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-around">
+      <div th:each="image : ${rental.getAllListImages()}" style="margin-bottom: 20px">
+        <img class="image-style"
+             th:src="${image}" th:alt="image" onclick="enlargeImage(event)">
+      </div>
+    </div>
+  </div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>
+<script>
+  let isLarge = false;
+  function enlargeImage(e){
+    const img = e.target;
+    if(isLarge){
+      img.classList.remove('enlarged-image');
+      isLarge = false;
+    }else{
+      img.classList.add('enlarged-image');
+      isLarge = true;
+    }
+  }
+</script>

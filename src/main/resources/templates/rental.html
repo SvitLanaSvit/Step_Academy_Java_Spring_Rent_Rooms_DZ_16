@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Rental</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+  <div class="container">
+    <h2 style="text-align: center">ONLINE RENTAL APARTMENTS</h2>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-around">
+      <div th:each="rental : ${rentals}" class="shadow p-3 mb-2 bg-white rounded">
+        <div class="card" style="width: 18rem;">
+          <img style="height: 150px; width: auto; object-fit: cover;" th:src="${rental.getAllListImages().get(0)}"
+               class="card-img-top" th:alt="${rental.getId()}">
+          <div class="card-body">
+            <p style="font-weight: bolder" class="card-text" th:text="${rental.getBedrooms()} + '-x bedrooms apartment'"></p>
+            <p class="card-text"><strong>District:</strong> <span th:text="${rental.getDistrict()}"></span></p>
+            <p class="card-text"><strong>Address:</strong> <span th:text="${rental.getAddress()}"></span></p>
+            <p class="card-text" th:text="${#strings.length(rental.getDescription()) > 30 ?
+        #strings.substring(rental.getDescription(), 0, 30) + '...' : rental.getDescription()}"></p>
+            <p class="card-text"><strong>Price:</strong> <span th:text="${rental.getRentAmount()} + ' &euro;'"></span></p>
+          </div>
+        </div>
+        <div style="margin-top: 10px">
+          <form th:action="'/rental/' + ${rental.getId()} + '/info'" method="post">
+            <button type="submit" class="btn btn-primary">More...</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>

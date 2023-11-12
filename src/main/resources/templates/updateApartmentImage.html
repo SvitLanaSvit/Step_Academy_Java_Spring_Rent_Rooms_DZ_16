@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>New Apartment Image</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+<div class="container">
+  <h3>UPDATE APARTMENT`S IMAGE</h3>
+  <form th:action="'/apartmentImage/' + ${image.getId()} + '/update'" method="post" enctype="multipart/form-data">
+    <div>
+      <label for="apartment" class="form-label">Apartment:</label>
+      <select class="form-select w-50 mb-3" aria-label="Default select example" id="apartment" name="apartment" required>
+        <option value="0" selected>Open this select menu</option>
+        <div th:each="apartment : ${apartments}">
+          <option th:value="${apartment.getId()}"
+                  th:text="${apartment.getDistrict().getNameDistrict() + ', ' + apartment.getAddress() + ', ' + apartment.getBedrooms()}"
+                  th:selected="${apartment != null && image.getApartment() != null
+                  && image.getApartment().getId().equals(apartment.getId())}"
+          ></option>
+        </div>
+      </select>
+    </div>
+    <div class="mb-3 w-50">
+      <label for="linkImage" class="form-label">Link image:</label>
+      <input type="file" class="form-control" id="linkImage" name="linkImage" required>
+    </div>
+    <div>
+      <img class="w-25 mb-3" id="image" th:src="${image.getLinkImage()}" th:alt="${image.getLinkImage()}">
+    </div>
+    <div class="btn-group">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <a th:href="'/admin/apartmentImages'" class="btn btn-secondary">Back</a>
+    </div>
+  </form>
+</div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>

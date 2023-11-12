@@ -18,10 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +113,59 @@ public class AdminApartmentImageController {
         }
 
         apartmentImageRepository.save(apartmentImage);
+        return "redirect:/admin/apartmentImages";
+    }
+
+    @GetMapping("/apartmentImage/{id}/update")
+    public String getApartmentImageUpdate(@PathVariable(value = "id")Long id, Model model){
+        ApartmentImage apartmentImage = apartmentImageRepository.findById(id).orElse(null);
+        List<Apartment> apartments = getAllApartments();
+        if(apartmentImage != null){
+            model.addAttribute("image", apartmentImage);
+        }
+        model.addAttribute("apartments", apartments);
+        return "updateApartmentImage";
+    }
+
+    @PostMapping("/apartmentImage/{id}/update")
+    public String saveApartmentImageUpdate(@PathVariable(value = "id")Long id,
+                                           @RequestParam Long apartment,
+                                           @RequestParam MultipartFile linkImage,
+                                           Model model){
+        ApartmentImage apartmentImage = apartmentImageRepository.findById(id).orElse(null);
+        Apartment apartmentFromDB = apartmentRepository.findById(apartment).orElse(null);
+        if(apartmentImage != null){
+            if(apartmentFromDB != null){
+                if(!apartmentFromDB.equals(apartmentImage.getApartment())){
+                    apartmentImage.setApartment(apartmentFromDB);
+                }
+            }
+
+            if(linkImage != null){
+                BlobClient cl = container.getBlobClient((apartmentImage.getLinkImage()));
+                cl.deleteIfExists();
+                BlobClient clUpdate = container.getBlobClient(linkImage.getOriginalFilename());
+                try(var stream = linkImage.getInputStream()){
+                    clUpdate.upload(stream, stream.available(), true);
+                    apartmentImage.setLinkImage(cl.getBlobUrl()); //if I work with blob and BD
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            apartmentImageRepository.save(apartmentImage);
+        }
+        return "redirect:/admin/apartmentImages";
+    }
+
+    @GetMapping("/apartmentImage/{id}/remove")
+    public String removeApartmentImage(@PathVariable(value = "id")Long id, Model model){
+        ApartmentImage apartmentImage = apartmentImageRepository.findById(id).orElse(null);
+        if(apartmentImage != null){
+            BlobClient cl = container.getBlobClient(apartmentImage.getLinkImage());
+            cl.deleteIfExists();
+            apartmentImageRepository.delete(apartmentImage);
+        }
         return "redirect:/admin/apartmentImages";
     }
 
