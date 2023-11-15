@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Update role</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+<div class="container">
+  <h3>UPDATE ROLE</h3>
+  <form th:action="'/role/' + ${role.getId()} + '/update'" method="post">
+    <div class="mb-3 w-25">
+      <label for="role" class="form-label">Role:</label>
+      <input type="text" class="form-control" id="role" name="role" th:value="${role.getRoleName()}" required>
+    </div>
+    <div class="btn-group">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <a th:href="'/admin/roles'" class="btn btn-secondary">Back</a>
+    </div>
+  </form>
+</div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>

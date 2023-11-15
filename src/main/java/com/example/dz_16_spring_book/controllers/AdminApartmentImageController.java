@@ -37,9 +37,6 @@ public class AdminApartmentImageController {
     @Autowired
     private ApartmentRepository apartmentRepository;
 
-//    @Autowired
-//    private DistrictRepository districtRepository;
-
     private BlobServiceClient client;
     private BlobContainerClient container;
 
@@ -168,12 +165,6 @@ public class AdminApartmentImageController {
         }
         return "redirect:/admin/apartmentImages";
     }
-
-//    private List<District> getAllDistrict(){
-//        List<District> districts = new ArrayList<>();
-//        districtRepository.findAll().forEach(item -> districts.add(item));
-//        return districts;
-//    }
 
     private List<Apartment> getAllApartments(){
         List<Apartment> apartments = new ArrayList<>();

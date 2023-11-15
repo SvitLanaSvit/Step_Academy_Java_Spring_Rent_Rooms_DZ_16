@@ -2,31 +2,31 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:insert="section/head ::head">
   <meta charset="UTF-8">
-  <title>Admin Districts</title>
+  <title>Admin Roles</title>
 </head>
 <header th:insert="section/header ::header"></header>
 <body>
 <div class="container">
-  <h3>DISTRICTS</h3>
+  <h3>ROLES</h3>
   <div th:if="${message} != null" class="alert alert-warning" th:text="${message}"></div>
-  <a href="/districts/newDistrict" class="btn btn-success">NEW DISTRICT</a>
+  <a href="/roles/newRole" class="btn btn-success">NEW ROLE</a>
   <table class="table table-hover table-striped">
     <thead>
     <tr>
       <th>Id</th>
-      <th>District</th>
+      <th>Role</th>
       <th></th>
     </tr>
     </thead>
     <tbody>
-    <div th:each="district : ${districts}">
+    <div th:each="role : ${roles}">
       <tr>
-        <td th:text="${district.getId()}"></td>
-        <td th:text="${district.getNameDistrict()}"></td>
+        <td th:text="${role.getId()}"></td>
+        <td th:text="${role.getRoleName()}"></td>
         <td>
           <div class="btn-group">
-            <a th:href="'/district/' + ${district.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
-            <a th:onclick="'removeDistrict(' + ${district.getId()} + ')'" class="btn btn-sm btn-danger">REMOVE</a>
+            <a th:href="'/role/' + ${role.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
+            <a th:onclick="'removeRole(' + ${role.getId()} + ')'" class="btn btn-sm btn-danger">REMOVE</a>
           </div>
         </td>
       </tr>
@@ -38,10 +38,10 @@
 <footer th:insert="section/footer ::footer"></footer>
 </html>
 <script>
-  function removeDistrict(id){
-    const confirmation = confirm('Are you sure to remove district with id = ' + id + '?');
+  function removeRole(id){
+    const confirmation = confirm('Are you sure to remove role with id = ' + id + '?');
     if(confirmation){
-      window.location.href ='/district/' + id + '/remove';
+      window.location.href ='/role/' + id + '/remove';
     }
   }
 

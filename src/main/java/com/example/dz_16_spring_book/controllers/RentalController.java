@@ -13,9 +13,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class RentalController {
@@ -37,26 +39,6 @@ public class RentalController {
 
         for(var apartment : apartments){
             ApartmentRental apartmentRental = new ApartmentRental();
-//            apartmentRental.setId(apartment.getId());
-//            apartmentRental.setAddress(apartment.getAddress());
-//            apartmentRental.setRentAmount(apartment.getRentAmount());
-//            apartmentRental.setBedrooms(apartment.getBedrooms());
-//            apartmentRental.setDescription(apartment.getDescription());
-//            if(apartment.getDistrict() != null){
-//                for (var district : districts) {
-//                    if(district.getId().equals(apartment.getDistrict().getId())){
-//                        apartmentRental.setDistrict(district.getNameDistrict());
-//                    }
-//                }
-//            }
-//            apartmentRental.setRented(apartment.isRented());
-//            for(var image : images){
-//                if(image.getLinkImage() != null){
-//                    if(apartment.getId().equals(image.getApartment().getId())){
-//                        apartmentRental.addToListImages(image.getLinkImage());
-//                    }
-//                }
-//            }
             setApartmentRental(apartmentRental, apartment, districts, images);
 
             if(!apartment.isRented()){
@@ -65,6 +47,7 @@ public class RentalController {
         }
 
         model.addAttribute("rentals", apartmentRentals);
+        model.addAttribute("districts", districts);
         return "rental";
     }
 
@@ -81,6 +64,42 @@ public class RentalController {
 
         model.addAttribute("rental", apartmentRental);
         return "rentalApartmentInfo";
+    }
+
+    @PostMapping("/rental/searchApartments")
+    public String searchApartments(
+            @RequestParam int rooms,
+            @RequestParam Long district,
+            @RequestParam Double price,
+            Model model){
+        List<Apartment> apartments = getAllApartments();
+        List<ApartmentImage> images = getAllApartmentImages();
+        List<ApartmentRental> apartmentRentals = new ArrayList<>();
+        List<District> districts = getAllDistrict();
+        District districtFromDB = districtRepository.findById(district).orElse(null);
+
+        for(var apartment : apartments){
+            ApartmentRental apartmentRental = new ApartmentRental();
+            setApartmentRental(apartmentRental, apartment, districts, images);
+
+            if(!apartment.isRented()){
+                apartmentRentals.add(apartmentRental);
+            }
+        }
+
+        var filterApartmentRental = apartmentRentals.stream()
+                    .filter(apartment -> apartment.getBedrooms() == rooms && apartment.getRentAmount() < price)
+                    .collect(Collectors.toList());
+
+        if(district != 0 && districtFromDB != null){
+             filterApartmentRental = filterApartmentRental.stream()
+                     .filter(apartment -> apartment.getDistrict().equals(districtFromDB.getNameDistrict()))
+                     .collect(Collectors.toList());
+        }
+
+        model.addAttribute("rentals", filterApartmentRental);
+        model.addAttribute("districts", districts);
+        return "rental";
     }
 
     private void setApartmentRental(

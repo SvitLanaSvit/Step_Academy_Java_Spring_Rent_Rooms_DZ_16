@@ -21,6 +21,7 @@ public class Customer {
     private Long id;
     private String firstName;
     private String lastName;
+    @Column(unique = true)
     private String email;
     private String phone;
     private String address;
@@ -33,4 +34,7 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = {MERGE, PERSIST, REFRESH},
             orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ApartmentRental> apartmentRentals;
+    @OneToMany(mappedBy = "customer", cascade = {MERGE, PERSIST, REFRESH},
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<User> users;
 }

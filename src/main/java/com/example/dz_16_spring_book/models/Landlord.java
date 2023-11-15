@@ -22,6 +22,7 @@ public class Landlord {
     private Long id;
     private String firstName;
     private String lastName;
+    @Column(unique = true)
     private String email;
     private String phone;
     private String address;
@@ -32,4 +33,8 @@ public class Landlord {
     @OneToMany(mappedBy = "landlord", cascade = {MERGE, PERSIST, REFRESH},
             orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ApartmentRental> apartmentRentals;
+
+    @OneToMany(mappedBy = "landlord", cascade = {MERGE, PERSIST, REFRESH},
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<User> users;
 }

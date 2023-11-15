@@ -2,14 +2,8 @@ package com.example.dz_16_spring_book.controllers;
 
 import com.example.dz_16_spring_book.dto.ApartmentInfo;
 import com.example.dz_16_spring_book.dto.CustomerInfo;
-import com.example.dz_16_spring_book.models.Apartment;
-import com.example.dz_16_spring_book.models.Customer;
-import com.example.dz_16_spring_book.models.District;
-import com.example.dz_16_spring_book.models.Landlord;
-import com.example.dz_16_spring_book.repositories.ApartmentRepository;
-import com.example.dz_16_spring_book.repositories.CustomerRepository;
-import com.example.dz_16_spring_book.repositories.DistrictRepository;
-import com.example.dz_16_spring_book.repositories.LandlordRepository;
+import com.example.dz_16_spring_book.models.*;
+import com.example.dz_16_spring_book.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,6 +25,7 @@ public class AdminController {
     private final LandlordRepository landlordRepository;
     private final DistrictRepository districtRepository;
     private final ApartmentRepository apartmentRepository;
+    private final RoleRepository roleRepository;
 
     @GetMapping("/admin")
     public String getAdminPage(Model model){
@@ -286,8 +281,8 @@ public class AdminController {
             district.setNameDistrict(nameDistrict);
             districtRepository.save(district);
         }else{
-            String message = "This district " + nameDistrict + " exists already!";
-            redirectAttributes.addAttribute("message", message);
+            String message = "This district '" + nameDistrict + "' exists already!";
+            redirectAttributes.addFlashAttribute("message", message);
         }
 
         return "redirect:/admin/districts";
@@ -455,6 +450,74 @@ public class AdminController {
         return "redirect:/admin/apartments";
     }
 
+    @GetMapping("/admin/roles")
+    public String getAllRoles(Model model){
+        List<Role> roles = getAllRoles();
+        model.addAttribute("roles", roles);
+        return "adminRoles";
+    }
+
+    @GetMapping("/roles/newRole")
+    public String getNewRole(Model model){
+        return "newRole";
+    }
+
+    @PostMapping("/roles/newRole")
+    public String saveNewRole(
+            @RequestParam String role, Model model, RedirectAttributes redirectAttributes){
+        Role roleSave = new Role();
+        List<Role> roles = getAllRoles();
+        boolean isExists = roles.stream().anyMatch(r -> role.equals(r.getRoleName()));
+        if(!isExists){
+            roleSave.setRoleName(role);
+            roleRepository.save(roleSave);
+        }else{
+            String message = "This role '" + role + "' exists already!";
+            redirectAttributes.addFlashAttribute("message", message);
+        }
+
+        return "redirect:/admin/roles";
+    }
+
+    @GetMapping("/role/{id}/update")
+    public String getRoleUpdate(@PathVariable(value = "id") Long id, Model model){
+        Role role = roleRepository.findById(id).orElse(null);
+        if(role != null){
+            model.addAttribute(role);
+        }
+        return "updateRole";
+    }
+
+    @PostMapping("/role/{id}/update")
+    public String saveRoleUpdate(@PathVariable(value = "id") Long id,
+                                 String role,
+                                 Model model,
+                                 RedirectAttributes redirectAttributes){
+        Role roleFromDB = roleRepository.findById(id).orElse(null);
+        List<Role> roles = getAllRoles();
+        boolean isExists = roles.stream().anyMatch(r -> role.equals(r.getRoleName()));
+        if(roleFromDB != null){
+            if(!isExists){
+                if(!role.equals(roleFromDB.getRoleName())){
+                    roleFromDB.setRoleName(role);
+                }
+
+                roleRepository.save(roleFromDB);
+            }else{
+                String message = "This role '" + role + "' exists already!";
+                redirectAttributes.addFlashAttribute("message", message);
+            }
+        }
+
+        return "redirect:/admin/roles";
+    }
+
+    @GetMapping("/role/{id}/remove")
+    public String removeRole(@PathVariable(value = "id") Long id){
+        roleRepository.findById(id).ifPresent(roleRepository::delete);
+        return "redirect:/admin/roles";
+    }
+
     private List<Landlord> getAllLandlords(){
         List<Landlord> landlords = new ArrayList<>();
         landlordRepository.findAll().forEach(item -> landlords.add(item));
@@ -471,5 +534,11 @@ public class AdminController {
         List<District> districts = new ArrayList<>();
         districtRepository.findAll().forEach(item -> districts.add(item));
         return districts;
+    }
+
+    private List<Role> getAllRoles(){
+        List<Role> roles = new ArrayList<>();
+        roleRepository.findAll().forEach(item -> roles.add(item));
+        return roles;
     }
 }

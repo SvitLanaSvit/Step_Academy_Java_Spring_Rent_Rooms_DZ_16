@@ -52,6 +52,12 @@
              th:src="${image}" th:alt="image" onclick="enlargeImage(event)">
       </div>
     </div>
+    <div style="display: flex; justify-content: space-between">
+      <a th:href="'/rental'" class="btn btn-secondary">Back</a>
+      <form th:action="'/rental/' + ${rental.getId()} + '/apartment'" method="post">
+        <button type="submit" class="btn btn-success">Rent</button>
+      </form>
+    </div>
   </div>
 </body>
 <footer th:insert="section/footer ::footer"></footer>
