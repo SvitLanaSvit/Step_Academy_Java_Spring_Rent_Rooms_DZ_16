@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Logout</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+  <div class="container">
+    <form action="/logout" method="get" id="formSub">
+      <div style="margin-top: 10px;">
+        <input class="btn btn-primary" onclick="submitOut()"/>
+      </div>
+    </form>
+  </div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>
+<script>
+  const form = document.getElementById('formSub');
+  submitOut();
+
+  function submitOut(){
+    form.submit();
+  }
+</script>

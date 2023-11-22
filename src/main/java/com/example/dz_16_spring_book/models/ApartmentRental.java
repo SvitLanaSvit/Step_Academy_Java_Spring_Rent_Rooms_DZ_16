@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 import static jakarta.persistence.CascadeType.*;
 
@@ -28,4 +29,11 @@ public class ApartmentRental {
     private Landlord landlord;
     private Timestamp rentalStartDate;
     private Timestamp rentalEndDate;
+    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
+    private Timestamp rentalDate = new Timestamp(System.currentTimeMillis());
+
+    @PrePersist
+    protected void onCreate() {
+        rentalDate = new Timestamp(new Date().getTime());
+    }
 }

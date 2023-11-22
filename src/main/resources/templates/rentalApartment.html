@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Rental apartment</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+  <div class="container">
+    <h3>RENTAL APARTMENT</h3>
+    <div class="mb-3 w-25">
+      <label>Choose the rental period:</label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="dateTypeRental" id="daily" value="daily">
+        <label class="form-check-label" for="daily">DAILY</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="dateTypeRental" id="longTerm" value="longTerm">
+        <label class="form-check-label" for="longTerm">LONG TERM</label>
+      </div>
+    </div>
+
+    <div id="dailyDiv" style="display: none" class="shadow p-3 bg-white rounded">
+      <form th:action="'/rental/' + ${rental.getId()} + '/apartment'" method="post">
+        <label for="spanDateRange" class="mb-3">Select a date range:</label>
+        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 50%">
+          <i class="fa fa-calendar"></i>&nbsp;
+          <input type="text" id="spanDateRange" name="dateRange" style="border: none; background: transparent; width: 95%;" readonly>
+          <i class="fa fa-caret-down"></i>
+        </div>
+
+        <div style="margin-top: 10px;">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="longTermDiv" style="display: none" class="shadow p-3 bg-white rounded">
+      <div class="mb-3 w-25">
+        <label for="startDate" class="form-label">Start date:</label>
+        <input type="text" id="startDate" name="startDate" />
+      </div>
+      <div class="mb-3 w-25">
+        <label for="months" class="form-label">Months:</label>
+        <input type="number" class="form-control" id="months" name="months" min="1" value="1" required>
+      </div>
+      <div style="margin-top: 10px;">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>
+<script>
+  function showDiv() {
+    // Get the value of the selected radio button
+    const role = document.querySelector('input[name="dateTypeRental"]:checked').value;
+
+    // Get the div elements
+    const dailyDiv = document.getElementById('dailyDiv');
+    const longTermDiv = document.getElementById('longTermDiv');
+
+    // Hide both divs initially
+    dailyDiv.style.display = 'none';
+    longTermDiv.style.display = 'none';
+
+    // Show the appropriate div based on the selected radio button
+    if(role === 'daily') {
+      dailyDiv.style.display = 'block';
+    } else if(role === 'longTerm') {
+      longTermDiv.style.display = 'block';
+    }
+  }
+
+  // Add event listeners to radio buttons
+  document.getElementById('daily').addEventListener('change', showDiv);
+  document.getElementById('longTerm').addEventListener('change', showDiv);
+
+  //----------RANGE DATE------------------------------------------------------
+  $(function() {
+    // const start = moment().subtract(29, 'days');
+    const start = moment();
+    const end = moment().add(29, 'days');
+
+    function cb(start, end) {
+      $('#spanDateRange').val(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    $('#reportrange').daterangepicker({
+      startDate: start,
+      endDate: end,
+      ranges: {
+        'Today': [moment(), moment()],
+        // 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        'Tomorrow': [moment(), moment().add(1, 'days')],
+        // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+        'Next 7 Days': [moment(), moment().add(6, 'days')],
+        // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+        'Next 30 Days': [moment(), moment().add(29, 'days')],
+        // 'This Month': [moment().startOf('month'), moment().endOf('month')],
+        // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+      }
+    }, cb);
+
+    cb(start, end);
+
+  });
+
+  $(function() {
+    $('input[name="startDate"]').daterangepicker({
+      singleDatePicker: true,
+      showDropdowns: true
+    });
+  });
+
+  document.getElementById('startDate').addEventListener('click', ()=>{
+    console.log(document.getElementById('startDate').value);
+  });
+
+  //-------read cookies and config---------------------------------------
+  function readCookies() {
+    const cookies = document.cookie.split(';'); // This gets all cookies as a single string
+    let cookie_user = '';
+    for (const cookie of cookies) {
+      const parts = cookie.split('=');
+      if (parts[0].trim() === 'log') {
+        cookie_user = parts[1];
+        break;
+      }
+    }
+    return convertToObject(cookie_user);
+  }
+
+  function convertToObject(str) {
+    const obj = {};
+    const keyValuePairs = str.split('|');
+
+    keyValuePairs.forEach(pair => {
+      const [key, value] = pair.split(':');
+      obj[key] = isNaN(Number(value)) ? value : Number(value);
+    });
+
+    return obj;
+  }
+
+  function updateLoginLogoutDisplay() {
+    const objCookie = readCookies();
+    // Assuming 'log' is the name of the cookie that holds the login status
+    const isLoggedIn = objCookie && objCookie.login;
+
+    // Find the login/logout list item
+    const loginListItem = $('.nav-item').filter(function() {
+      return $(this).find('a').text().toUpperCase().includes('LOG IN');
+    });
+
+    // Update the text and href based on login status
+    if (isLoggedIn) {
+      loginListItem.find('a').text('Hallo ' + objCookie.login + ', LOG OUT');
+      loginListItem.find('a').attr('href', '/logout'); // Set this to your actual logout URL
+    } else {
+      loginListItem.find('a').text('LOG IN');
+      loginListItem.find('a').attr('href', '/login');
+    }
+  }
+
+  // Call updateLoginLogoutDisplay on page load to set the correct option
+  updateLoginLogoutDisplay();
+  //------------------------------------------------------------------
+</script>

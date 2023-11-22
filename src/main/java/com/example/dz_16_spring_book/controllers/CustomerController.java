@@ -1,6 +1,7 @@
 package com.example.dz_16_spring_book.controllers;
 
 import com.example.dz_16_spring_book.dto.CustomerInfo;
+import com.example.dz_16_spring_book.dto.UserUpdateDesire;
 import com.example.dz_16_spring_book.models.Customer;
 import com.example.dz_16_spring_book.models.District;
 import com.example.dz_16_spring_book.repositories.CustomerRepository;
@@ -8,9 +9,8 @@ import com.example.dz_16_spring_book.repositories.DistrictRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +95,65 @@ public class CustomerController {
         model.addAttribute("customers", filteredCustomers);
         return "customers";
     }
+
+    @GetMapping("/customer/{id}/info")
+    public String getInfo(@PathVariable(name = "id") Long id, RedirectAttributes redirectAttributes){
+        Customer customer = customerRepository.findById(id).orElse(null);
+        CustomerInfo customerInfo = new CustomerInfo();
+        if(customer != null){
+            customerInfo.setId(id);
+            customerInfo.setFirstName(customer.getFirstName());
+            customerInfo.setLastName(customer.getLastName());
+            customerInfo.setEmail(customer.getEmail());
+            customerInfo.setPhone(customer.getPhone());
+            customerInfo.setAddress(customer.getAddress());
+            customerInfo.setNumberRooms(customer.getNumberRooms());
+            customerInfo.setFloor(customer.getFloor());
+            customerInfo.setPrice(customer.getPrice());
+            customerInfo.setDistrict(customer.getDistrict().getNameDistrict());
+        }
+        redirectAttributes.addFlashAttribute("customerInfoHome", customerInfo);
+        return "redirect:/";
+    }
+
+    @GetMapping("/customer/{id}/updateInfo")
+    public String getUpdateInfo(@PathVariable(name = "id") Long id, Model model){
+        Customer customer = customerRepository.findById(id).orElse(null);
+        List<District> districts = getAllDistricts();
+        model.addAttribute("customer", customer);
+        model.addAttribute("districts", districts);
+        return "customerInfoUpdate";
+    }
+
+    @PostMapping("/customer/{id}/updateInfo")
+    public String saveUpdateInfo(@PathVariable(name = "id") Long id, @ModelAttribute("user") UserUpdateDesire user){
+        Customer customer = customerRepository.findById(id).orElse(null);
+        District district = districtRepository.findById(user.getDistrict()).orElse(null);
+        if(customer != null){
+            if(user.getNumberRooms() != customer.getNumberRooms()){
+                 customer.setNumberRooms(user.getNumberRooms());
+            }
+
+            if(user.getFloor() != customer.getFloor()){
+                customer.setFloor(user.getFloor());
+            }
+
+            if(user.getPrice() != customer.getPrice()){
+                customer.setPrice(user.getPrice());
+            }
+
+            if(district != null){
+                if(!user.getDistrict().equals(customer.getDistrict().getId())){
+                    customer.setDistrict(district);
+                }
+            }
+
+            customerRepository.save(customer);
+        }
+
+        return "redirect:/";
+    }
+
 
     private List<Customer> getAllCustomer(){
         List<Customer> customers = new ArrayList<>();

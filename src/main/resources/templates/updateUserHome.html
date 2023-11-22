@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Update user home</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+  <div class="container">
+    <h3>UPDATE USER HOME</h3>
+    <form th:action="'/userHome/' + ${user.getId()} + '/update'" method="post">
+      <div class="mb-3 w-25">
+        <label for="firstname" class="form-label">Firstname:</label>
+        <input type="text" class="form-control" id="firstname" name="firstname" th:value="${user.getFirstName()}" required>
+      </div>
+      <div class="mb-3 w-25">
+        <label for="lastname" class="form-label">Lastname:</label>
+        <input type="text" class="form-control" id="lastname" name="lastname" th:value="${user.getLastName()}" required>
+      </div>
+      <div class="mb-3 w-25">
+        <label for="email" class="form-label">E-Mail:</label>
+        <input type="email" class="form-control" id="email" name="email" th:value="${user.getEmail()}" required>
+      </div>
+      <div class="mb-3 w-25">
+        <label for="phone" class="form-label">Phone:</label>
+        <input type="tel" class="form-control" id="phone" name="phone" th:value="${user.getPhone()}" required>
+      </div>
+      <div class="mb-3 w-25">
+        <label for="address" class="form-label">Address:</label>
+        <input type="text" class="form-control" id="address" name="address" th:value="${user.getAddress()}" required>
+      </div>
+      <div class="btn-group">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a th:href="'/'" class="btn btn-secondary">Back</a>
+      </div>
+    </form>
+  </div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>
+<script>
+  function readCookies() {
+    const cookies = document.cookie.split(';');; // This gets all cookies as a single string
+    let cookie_user = '';
+    for (const cookie of cookies) {
+      const parts = cookie.split('=');
+      if (parts[0].trim() === 'log') {
+        cookie_user = parts[1];
+        break;
+      }
+    }
+    return convertToObject(cookie_user);
+  }
+
+  function convertToObject(str) {
+    const obj = {};
+    const keyValuePairs = str.split('|');
+
+    keyValuePairs.forEach(pair => {
+      const [key, value] = pair.split(':');
+      obj[key] = isNaN(Number(value)) ? value : Number(value);
+    });
+
+    return obj;
+  }
+
+  function updateLoginLogoutDisplay() {
+    const objCookie = readCookies();
+    // Assuming 'log' is the name of the cookie that holds the login status
+    const isLoggedIn = objCookie && objCookie.login;
+
+    // Find the login/logout list item
+    const loginListItem = $('.nav-item').filter(function() {
+      return $(this).find('a').text().toUpperCase().includes('LOG IN');
+    });
+
+    // Update the text and href based on login status
+    if (isLoggedIn) {
+      loginListItem.find('a').text('Hallo ' + objCookie.login + ', LOG OUT');
+      loginListItem.find('a').attr('href', '/logout'); // Set this to your actual logout URL
+    } else {
+      loginListItem.find('a').text('LOG IN');
+      loginListItem.find('a').attr('href', '/login');
+    }
+  }
+
+  // Call updateLoginLogoutDisplay on page load to set the correct option
+  updateLoginLogoutDisplay();
+  //------------------------------------------------------------------
+</script>

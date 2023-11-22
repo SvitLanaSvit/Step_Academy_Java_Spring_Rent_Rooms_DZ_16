@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="section/head ::head">
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<header th:insert="section/header ::header"></header>
+<body>
+  <div class="container">
+    <h3>LOGIN</h3>
+    <form action="/login" method="post">
+      <div class="mb-3 w-25">
+        <label for="login" class="form-label">Login:</label>
+        <input type="text" class="form-control" id="login" name="login" required>
+      </div>
+      <div class="mb-3 w-25">
+        <label for="password" class="form-label">Password:</label>
+        <input type="password" class="form-control" id="password" name="password" required
+               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+               title="Must contain at least one number and one uppercase and lowercase letter,
+                     and at least 8 or more characters">
+      </div>
+
+      <div style="margin-top: 10px;">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
+  </div>
+</body>
+<footer th:insert="section/footer ::footer"></footer>
+</html>

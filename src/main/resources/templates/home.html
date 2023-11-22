@@ -7,8 +7,196 @@
 <header th:insert="section/header ::header"></header>
 <body>
     <div class="container">
+        <div th:if="${messageSuccess} != null" class="alert alert-success" th:text="${messageSuccess}"></div>
+        <div th:if="${message} != null" class="alert alert-danger" th:text="${message}"></div>
         <h2 th:text="${text}"></h2>
+        <div>
+            <input type="hidden" th:value="${user}" name="user" id="user"/>
+        </div>
+
+        <div class="alert alert-info" id="info">
+            <strong>INFO!</strong><span> Here you can see your page after registration.</span>
+        </div>
+
+        <div id="tableUserInfo">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td th:if="${userInfo != null}" th:text="${userInfo.getFirstName()}"></td>
+                        <td th:if="${userInfo != null}" th:text="${userInfo.getLastName()}"></td>
+                        <td th:if="${userInfo != null}" th:text="${userInfo.getEmail()}"></td>
+                        <td th:if="${userInfo != null}" th:text="${userInfo.getPhone()}"></td>
+                        <td th:if="${userInfo != null}" th:text="${userInfo.getAddress()}"></td>
+                        <td>
+                            <div style="display: flex;">
+                                <a th:if="${userInfo != null}" th:href="'/userHome/' + ${userInfo.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
+                                <a th:if="${userInfo != null}" id="customerInfo"
+                                   th:onclick="'getInfo(' + ${userInfo.getId()} + ')'" class="btn btn-sm btn-primary">INFO</a>
+                                <a th:if="${userInfo != null}" id="landlordNewApartment" th:href="'/landlord/' + ${userInfo.getId()} + '/newApartment'"
+                                   class="btn btn-sm btn-success">NEW APARTMENT</a>
+                                <a th:if="${userInfo != null}" id="customerRentalApartments"
+                                   th:onclick="'getRentalApartments(' + ${userInfo.getId()} + ')'" class="btn btn-sm btn-secondary">RENTAL</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="customerInfoHome" style="display: none">
+            <h3>DESIRE INFO</h3>
+            <table class="table table-striped table-hover" id="customerInfoHomeTable">
+                <thead>
+                    <tr>
+                        <th>Desire for the number of rooms</th>
+                        <th>Desire for the floor</th>
+                        <th>Desire for the price to, &euro;</th>
+                        <th>Desire for the district</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td th:if="${customerInfoHome != null}" th:text="${customerInfoHome.numberRooms}"></td>
+                        <td th:if="${customerInfoHome != null}" th:text="${customerInfoHome.floor}"></td>
+                        <td th:if="${customerInfoHome != null}" th:text="${customerInfoHome.price}"></td>
+                        <td th:if="${customerInfoHome != null}" th:text="${customerInfoHome.district}"></td>
+                        <td>
+                            <a th:if="${customerInfoHome != null}" id="customerInfoUpdate"
+                               th:onclick="'infoUpdate(' + ${customerInfoHome.id} + ')'" class="btn btn-sm btn-warning">UPDATE</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 <footer th:insert="section/footer ::footer"></footer>
 </html>
+<script>
+    const user = document.getElementById('user');
+    const infoDiv = document.getElementById('info');
+    const tableUserInfoDiv = document.getElementById('tableUserInfo');
+    const tableDiv = document.getElementById('customerInfoHome');
+    let count = 0;
+    document.querySelectorAll('#customerInfoHomeTable td').forEach((item) =>{
+        if(item.textContent !== ''){
+            count++;
+        }
+    });
+
+    if(count > 1){
+        tableDiv.style.display = 'block';
+    }else{
+        tableDiv.style.display = 'none';
+    }
+
+    if(user.value.length !== 0){
+        writeCookie(user.value)
+    }
+    window.onload = function() {
+        setTimeout(function() {
+            const messageDiv = document.querySelector('.alert.alert-danger');
+            const messageDivSuccess = document.querySelector('.alert.alert-success');
+            if (messageDiv) {
+                messageDiv.style.display = 'none';
+            }else if(messageDivSuccess){
+                messageDivSuccess.style.display = 'none';
+            }
+        }, 3000); // 3000 milliseconds = 3 seconds
+    };
+
+    function writeCookie(info){
+        // const expirationDate = new Date("Thu, 31 Dec 2099 23:59:59 UTC");
+        const oneHourFromNow = new Date();
+        oneHourFromNow.setHours(oneHourFromNow.getHours() + 1);
+        document.cookie = 'log=' + `${info}` + '; expires=' + `${oneHourFromNow}` + '; path=/';
+    }
+
+    //-------read cookies and config---------------------------------------
+    function readCookies() {
+        const cookies = document.cookie.split(';');; // This gets all cookies as a single string
+        let cookie_user = '';
+        for (const cookie of cookies) {
+            const parts = cookie.split('=');
+            if (parts[0].trim() === 'log') {
+                cookie_user = parts[1];
+                break;
+            }
+        }
+        return convertToObject(cookie_user);
+    }
+
+    function convertToObject(str) {
+        const obj = {};
+        const keyValuePairs = str.split('|');
+
+        keyValuePairs.forEach(pair => {
+            const [key, value] = pair.split(':');
+            obj[key] = isNaN(Number(value)) ? value : Number(value);
+        });
+
+        return obj;
+    }
+
+    function updateLoginLogoutDisplay() {
+        const objCookie = readCookies();
+        // Assuming 'log' is the name of the cookie that holds the login status
+        const isLoggedIn = objCookie && objCookie.login;
+        const role = objCookie.role;
+
+        const linkCustomer = document.getElementById('customerInfo');
+        const linkLandlord = document.getElementById('landlordNewApartment');
+        const linkCustomerRentalApartments = document.getElementById('customerRentalApartments');
+
+        // Find the login/logout list item
+        const loginListItem = $('.nav-item').filter(function() {
+            return $(this).find('a').text().toUpperCase().includes('LOG IN');
+        });
+
+        // Update the text and href based on login status
+        if (isLoggedIn) {
+            loginListItem.find('a').text('Hallo ' + objCookie.login + ', LOG OUT');
+            loginListItem.find('a').attr('href', '/logout'); // Set this to your actual logout URL
+            infoDiv.style.display = 'none';
+            tableUserInfoDiv.style.display = 'block';
+            if(role === 'customer'){
+                linkCustomer.style.display = 'block';
+                linkLandlord.style.display = 'none';
+                linkCustomerRentalApartments.style.display = 'block'
+            }else{
+                linkCustomer.style.display = 'none';
+                linkLandlord.style.display = 'block';
+                linkCustomerRentalApartments.style.display = 'none'
+            }
+        } else {
+            loginListItem.find('a').text('LOG IN');
+            loginListItem.find('a').attr('href', '/login');
+            infoDiv.style.display = 'block';
+            tableUserInfoDiv.style.display = 'none';
+            tableDiv.style.display = 'none';
+        }
+    }
+
+    // Call updateLoginLogoutDisplay on page load to set the correct option
+    updateLoginLogoutDisplay();
+    //------------------------------------------------------------------
+
+    function getInfo(id){
+        document.location.href = '/customer/' + id + '/info';
+    }
+
+    function infoUpdate(id){
+        document.location.href = '/customer/' + id + '/updateInfo';
+    }
+</script>

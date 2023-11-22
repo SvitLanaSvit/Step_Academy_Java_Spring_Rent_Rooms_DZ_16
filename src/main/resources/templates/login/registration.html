@@ -6,7 +6,12 @@
 </head>
 <header th:insert="section/header ::header"></header>
 <body>
-  <div class="container">
+  <div class="container" id="info">
+    <div class="alert alert-info">
+      <strong>WARNING!</strong><span> You are already registered!!!</span>
+    </div>
+  </div>
+  <div class="container" id="containerRegistration">
     <h3>REGISTRATION</h3>
     <div class="mb-3 w-25">
       <label>Select role user:</label>
@@ -22,9 +27,9 @@
 
     <div id="customerDiv" style="display: none">
       <form action="/registration" method="post">
-        <input type="hidden" name="role" id="role" th:value="'customer'"/>
+        <input type="hidden" name="role" th:value="'customer'"/>
         <div style="display: flex; flex-wrap: wrap; justify-content: space-around">
-          <div class="shadow p-3 bg-white rounded">
+          <div class="shadow p-3 bg-white rounded" style="width: 30%">
             <div class="mb-3 w-100">
               <label for="login" class="form-label">Login:</label>
               <input type="text" class="form-control" id="login" name="login" required>
@@ -41,7 +46,7 @@
               <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
             </div>
           </div>
-          <div class="shadow p-3 bg-white rounded">
+          <div class="shadow p-3 bg-white rounded" style="width: 30%">
             <div class="mb-3 w-100">
               <label for="firstname" class="form-label">Firstname:</label>
               <input type="text" class="form-control" id="firstname" name="firstname" required>
@@ -64,7 +69,7 @@
             </div>
           </div>
 
-          <div class="shadow p-3 bg-white rounded">
+          <div class="shadow p-3 bg-white rounded" style="width: 30%">
             <div class="mb-3 w-100">
               <label for="numberRooms" class="form-label">Desired number of rooms:</label>
               <input type="number" class="form-control" id="numberRooms" name="numberRooms" min="0" value="1" required>
@@ -94,8 +99,56 @@
         </div>
       </form>
     </div>
+
     <div id="landlordDiv" style="display: none">
-      <p>landlord</p>
+      <form action="/registration" method="post">
+        <input type="hidden" name="role" th:value="'landlord'"/>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-around">
+          <div class="shadow p-3 bg-white rounded" style="width: 50%">
+            <div class="mb-3 w-100">
+              <label for="loginL" class="form-label">Login:</label>
+              <input type="text" class="form-control" id="loginL" name="login" required>
+            </div>
+            <div class="mb-3 w-100">
+              <label for="passwordL" class="form-label">Password:</label>
+              <input type="password" class="form-control" id="passwordL" name="password" required
+                     pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                     title="Must contain at least one number and one uppercase and lowercase letter,
+                     and at least 8 or more characters">
+            </div>
+            <div class="mb-3 w-100">
+              <label for="confirmPasswordL" class="form-label">Confirm password:</label>
+              <input type="password" class="form-control" id="confirmPasswordL" name="confirmPassword" required>
+            </div>
+          </div>
+          <div class="shadow p-3 bg-white rounded" style="width: 50%">
+            <div class="mb-3 w-100">
+              <label for="firstnameL" class="form-label">Firstname:</label>
+              <input type="text" class="form-control" id="firstnameL" name="firstname" required>
+            </div>
+            <div class="mb-3 w-100">
+              <label for="lastnameL" class="form-label">Lastname:</label>
+              <input type="text" class="form-control" id="lastnameL" name="lastname" required>
+            </div>
+            <div class="mb-3 w-100">
+              <label for="emailL" class="form-label">E-Mail:</label>
+              <input type="email" class="form-control" id="emailL" name="email" required>
+            </div>
+            <div class="mb-3 w-100">
+              <label for="phoneL" class="form-label">Phone:</label>
+              <input type="tel" class="form-control" id="phoneL" name="phone" required>
+            </div>
+            <div class="mb-3 w-100">
+              <label for="addressL" class="form-label">Address:</label>
+              <input type="text" class="form-control" id="addressL" name="address" required>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 10px; text-align: right">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
     </div>
   </div>
 </body>
@@ -139,4 +192,61 @@
       confirmPassword.removeAttribute('title');
     }
   });
+
+  //---work with config with help cookies-----------------------------------
+  function readCookies() {
+    const cookies = document.cookie.split(';');; // This gets all cookies as a single string
+    let cookie_user = '';
+    for (const cookie of cookies) {
+      const parts = cookie.split('=');
+      if (parts[0].trim() === 'log') {
+        cookie_user = parts[1];
+        break;
+      }
+    }
+    return convertToObject(cookie_user);
+  }
+
+  function convertToObject(str) {
+    const obj = {};
+    const keyValuePairs = str.split('|');
+
+    keyValuePairs.forEach(pair => {
+      const [key, value] = pair.split(':');
+      obj[key] = isNaN(Number(value)) ? value : Number(value);
+    });
+
+    return obj;
+  }
+
+  function updateLoginLogoutDisplay() {
+    const objCookie = readCookies();
+    // Assuming 'log' is the name of the cookie that holds the login status
+    const isLoggedIn = objCookie && objCookie.login;
+
+    // Find the login/logout list item
+    const loginListItem = $('.nav-item').filter(function() {
+      return $(this).find('a').text().toUpperCase().includes('LOG IN');
+    });
+
+    const visibleContainerRegistration = document.getElementById('containerRegistration');
+    const visibleInfo = document.getElementById('info');
+
+    // Update the text and href based on login status
+    if (isLoggedIn) {
+      loginListItem.find('a').text('Hallo ' + objCookie.login + ', LOG OUT');
+      loginListItem.find('a').attr('href', '/logout'); // Set this to your actual logout URL
+      visibleContainerRegistration.style.display = 'none';
+      visibleInfo.style.display = 'block';
+    } else {
+      loginListItem.find('a').text('LOG IN');
+      loginListItem.find('a').attr('href', '/login');
+      visibleContainerRegistration.style.display = 'block';
+      visibleInfo.style.display = 'none';
+    }
+  }
+
+  // Call updateLoginLogoutDisplay on page load to set the correct option
+  updateLoginLogoutDisplay();
+  //--------------------------------------------------------------------------------
 </script>

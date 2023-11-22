@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ApartmentRental {
+public class ApartmentRentalInfo {
     private Long id;
     private String address;
     private Double rentAmount;
