@@ -37,4 +37,7 @@ public class Apartment {
     @OneToMany(mappedBy = "apartment", cascade = {MERGE, PERSIST, REFRESH},
             orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ApartmentImage> apartmentImages;
+    @OneToMany(mappedBy = "apartment", cascade = {MERGE, PERSIST, REFRESH},
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<ApartmentRental> apartmentRentals;
 }

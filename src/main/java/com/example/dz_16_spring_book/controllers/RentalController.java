@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Controller
@@ -33,9 +35,11 @@ public class RentalController {
     @Autowired
     private DistrictRepository districtRepository;
     @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
     @Autowired
-    ApartmentRentalRepository apartmentRentalRepository;
+    private ApartmentRentalRepository apartmentRentalRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/rental")
     public String getApartmentsToRental(Model model){
@@ -125,60 +129,130 @@ public class RentalController {
                                       @RequestParam(required = false) String startDate,
                                       HttpServletRequest request,
                                       RedirectAttributes redirectAttributes){
+        Map<String, String> constMonths = new HashMap<>();
+        constMonths.put("January", "01");
+        constMonths.put("February", "02");
+        constMonths.put("March", "03");
+        constMonths.put("April", "04");
+        constMonths.put("May", "05");
+        constMonths.put("June", "06");
+        constMonths.put("July", "07");
+        constMonths.put("August", "08");
+        constMonths.put("September", "09");
+        constMonths.put("October", "10");
+        constMonths.put("November", "11");
+        constMonths.put("December", "12");
+
+        logger.info("ID: " + id);
         Apartment apartment = apartmentRepository.findById(id).orElse(null);
         UserCookieInfo userCookieInfo = readCookies(request);
         Customer customer = new Customer();
         if(userCookieInfo != null){
-            customer = customerRepository.findById(userCookieInfo.getId()).orElse(null);
+            List<User> users = getAllUsers();
+            User user = users.stream().filter(item -> userCookieInfo.getId().equals(item.getId())).toList().get(0);
+            customer = customerRepository.findById(user.getCustomer().getId()).orElse(null);
         }
         ApartmentRental apartmentRental = new ApartmentRental();
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfTomorrow = LocalDate.now().plusDays(1).atStartOfDay();
 
         if(dateRange != null){
             String[] dates = dateRange.split("-");
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
-            LocalDateTime startDateTime = LocalDateTime.parse(dates[0].trim(), formatter);
-            LocalDateTime endDateTime = LocalDateTime.parse(dates[1].trim(), formatter);
-            Timestamp startTimestamp = Timestamp.valueOf(startDateTime);
-            Timestamp endTimestamp = Timestamp.valueOf(endDateTime);
+            String startDateStr = getDateRegex(constMonths, dates[0].trim());
+            String endDateStr = getDateRegex(constMonths, dates[1].trim());
+            Timestamp startTimestamp = null;
+            Timestamp endTimestamp = null;
+            if(startDateStr != null){
+                LocalDate date = LocalDate.parse(startDateStr);
+                LocalDateTime dateTime = date.atStartOfDay(); // Assuming the start of the day for the timestamp
+                startTimestamp = Timestamp.valueOf(dateTime);
+            }
 
-            if (startTimestamp.toLocalDateTime().isAfter(now) || startTimestamp.toLocalDateTime().isEqual(now)) {
-                if(apartment != null){
-                    apartmentRental.setCustomer(customer);
-                    apartmentRental.setLandlord(apartment.getLandlord());
-                    apartmentRental.setRentalStartDate(startTimestamp);
-                    apartmentRental.setRentalEndDate(endTimestamp);
-                    apartment.setRented(true);
+            if(endDateStr != null){
+                LocalDate date = LocalDate.parse(endDateStr);
+                LocalDateTime dateTime = date.atStartOfDay(); // Assuming the end of the day for the timestamp
+                endTimestamp = Timestamp.valueOf(dateTime);
+            }
 
-                    apartmentRentalRepository.save(apartmentRental);
-                    apartmentRepository.save(apartment);
+            if(startTimestamp != null && endTimestamp != null){
+                if (startTimestamp.toLocalDateTime().isAfter(startOfTomorrow) ||
+                        startTimestamp.toLocalDateTime().isEqual(startOfTomorrow)) {
+                    if(apartment != null){
+                        apartmentRental.setCustomer(customer);
+                        apartmentRental.setLandlord(apartment.getLandlord());
+                        apartmentRental.setRentalStartDate(startTimestamp);
+                        apartmentRental.setRentalEndDate(endTimestamp);
+                        apartmentRental.setApartment(apartment);
+                        apartment.setRented(true);
+
+                        apartmentRentalRepository.save(apartmentRental);
+                        apartmentRepository.save(apartment);
+
+                        String messageSuccess = "Rental is successful!";
+                        redirectAttributes.addFlashAttribute("messageSuccess", messageSuccess);
+                    }
+
+                } else {
+                    String message = "This date " + startTimestamp +" cannot be lower than the current date!";
+                    redirectAttributes.addFlashAttribute("message", message);
                 }
-
-            } else {
-                String message = "";
             }
         }else if(months != null && startDate != null){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-            LocalDateTime startDateTime = LocalDateTime.parse(startDate.trim(), formatter);
-            Timestamp startTimestamp = Timestamp.valueOf(startDateTime);
+            String[] startDateArray = startDate.trim().split("/");
+            String month = startDateArray[0];
+            String day = String.format("%02d", Integer.parseInt(startDateArray[1]));
+            String year = startDateArray[2];
+            String startDateStr = year + '-' + month + '-' + day;
 
-            LocalDateTime endDateTime = startDateTime.plusMonths(months);
+            LocalDate date = LocalDate.parse(startDateStr);
+            LocalDateTime dateTime = date.atStartOfDay(); // Assuming the start of the day for the timestamp
+            Timestamp startTimestamp = Timestamp.valueOf(dateTime);
+
+            LocalDateTime endDateTime = dateTime.plusMonths(months);
             Timestamp endTimestamp = Timestamp.valueOf(endDateTime);
 
-            if (startTimestamp.toLocalDateTime().isAfter(now) || startTimestamp.toLocalDateTime().isEqual(now)) {
+            if (startTimestamp.toLocalDateTime().isAfter(startOfTomorrow) ||
+                    startTimestamp.toLocalDateTime().isEqual(startOfTomorrow)) {
                 if(apartment != null){
                     apartmentRental.setCustomer(customer);
                     apartmentRental.setLandlord(apartment.getLandlord());
                     apartmentRental.setRentalStartDate(startTimestamp);
                     apartmentRental.setRentalEndDate(endTimestamp);
+                    apartmentRental.setApartment(apartment);
                     apartment.setRented(true);
 
                     apartmentRentalRepository.save(apartmentRental);
                     apartmentRepository.save(apartment);
+
+                    String messageSuccess = "Rental is successful!";
+                    redirectAttributes.addFlashAttribute("messageSuccess", messageSuccess);
                 }
+            }else{
+                String message = "This date " + startTimestamp +" cannot be lower than the current date!";
+                redirectAttributes.addFlashAttribute("message", message);
             }
         }
         return "redirect:/";
+    }
+
+    @GetMapping("/rental/canselLease")
+    public String canselLeaseApartment(@RequestParam Long rentalId, @RequestParam Long apartmentId){
+        var apartmentRental = apartmentRentalRepository .findById(rentalId).orElse(null);
+        var apartment = apartmentRepository.findById(apartmentId).orElse(null);
+        if(apartmentRental != null){
+            apartmentRentalRepository.delete(apartmentRental);
+
+            if(apartment != null){
+                apartment.setRented(false);
+                apartmentRepository.save(apartment);
+            }
+        }
+
+        return "redirect:/";
+    }
+    private List<User> getAllUsers(){
+        List<User> users = new ArrayList<>();
+        userRepository.findAll().forEach(item -> users.add(item));
+        return users;
     }
 
     private void setApartmentRental(
@@ -254,5 +328,20 @@ public class RentalController {
         List<District> districts = new ArrayList<>();
         districtRepository.findAll().forEach(item -> districts.add(item));
         return districts;
+    }
+
+    private String getDateRegex(Map<String, String> map, String date){
+        String datePattern = "(\\w+) (\\d{1,2}), (\\d{4})";
+        Pattern pattern = Pattern.compile(datePattern);
+        Matcher matcher = pattern.matcher(date);
+
+        if (matcher.find()) {
+            String month = matcher.group(1);
+            String day = String.format("%02d", Integer.parseInt(matcher.group(2))); // Ensure the day is in two-digit format
+            String year = matcher.group(3);
+
+            return year + '-' + map.get(month) + '-' + day;
+        }
+        return null;
     }
 }

@@ -18,7 +18,7 @@
             <strong>INFO!</strong><span> Here you can see your page after registration.</span>
         </div>
 
-        <div id="tableUserInfo">
+        <div id="tableUserInfo" class="shadow p-3 bg-white rounded mb-3">
             <table class="table table-striped table-hover">
                 <thead>
                 <tr>
@@ -39,7 +39,7 @@
                         <td th:if="${userInfo != null}" th:text="${userInfo.getAddress()}"></td>
                         <td>
                             <div style="display: flex;">
-                                <a th:if="${userInfo != null}" th:href="'/userHome/' + ${userInfo.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
+                                <a th:if="${userInfo != null}" id="userUpdate" th:href="'/userHome/' + ${userInfo.getId()} + '/update'" class="btn btn-sm btn-warning">UPDATE</a>
                                 <a th:if="${userInfo != null}" id="customerInfo"
                                    th:onclick="'getInfo(' + ${userInfo.getId()} + ')'" class="btn btn-sm btn-primary">INFO</a>
                                 <a th:if="${userInfo != null}" id="landlordNewApartment" th:href="'/landlord/' + ${userInfo.getId()} + '/newApartment'"
@@ -53,7 +53,7 @@
             </table>
         </div>
 
-        <div id="customerInfoHome" style="display: none">
+        <div id="customerInfoHome" style="display: none" class="shadow p-3 bg-white rounded mb-3">
             <h3>DESIRE INFO</h3>
             <table class="table table-striped table-hover" id="customerInfoHomeTable">
                 <thead>
@@ -79,6 +79,74 @@
                 </tbody>
             </table>
         </div>
+
+        <div id="customerRentalInfo" style="display: none" class="shadow p-3 bg-white rounded mb-3">
+            <h3>RENTAL INFO</h3>
+            <div th:each="info : ${rentalCustomerInfos}">
+                <hr>
+                <h5>LANDLORD:</h5>
+                <table class="table table-striped table-hover tableInfo">
+                    <thead>
+                        <th>RENTAL DATE</th>
+                        <th>START RENTAL DATE</th>
+                        <th>END RENTAL DATE</th>
+                    </thead>
+                    <tbody>
+                        <td th:text="${info.rentalDate}"></td>
+                        <td th:text="${info.startRentalDate}"></td>
+                        <td th:text="${info.endRentalDate}"></td>
+                    </tbody>
+                </table>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Landlord's full name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td th:if="${info != null}" th:text="${info.fullNameLandlord}"></td>
+                            <td th:if="${info != null}" th:text="${info.emailLandlord}"></td>
+                            <td th:if="${info != null}" th:text="${info.phoneLandlord}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h5>APARTMENT:</h5>
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>Address apartment</th>
+                        <th>Rent amount apartment</th>
+                        <th>Bedrooms apartment</th>
+                        <th>District apartment</th>
+                        <th>Image of apartment</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td th:if="${info != null}" th:text="${info.addressApartment}"></td>
+                        <td th:if="${info != null}" th:text="${info.rentAmountApartment}"></td>
+                        <td th:if="${info != null}" th:text="${info.bedroomsApartment}"></td>
+                        <td th:if="${info != null}" th:text="${info.districtApartment}"></td>
+                        <td th:if="${info != null}">
+                            <img style="width: 150px" th:src="${info.linkImagesApartment}" th:alt="${info.idApartment}">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p style="text-align: justify"><strong>DESCRIPTION: <span th:if="${info != null}" th:text="${info.descriptionApartment}"></span></strong></p>
+<!--                <a th:if="${info != null}" id="cancelLease" th:href="'/rentalApartment/' + ${info.getId()} + '/cancel'" class="btn btn-sm btn-warning">CANCEL THE LEASE</a>-->
+                <form id="formCancelLease" action="/rental/canselLease" method="get">
+                    <input type="hidden" name="rentalId" th:if="${info != null}" th:value="${info.id}">
+                    <input type="hidden" name="apartmentId" th:if="${info != null}" th:value="${info.idApartment}">
+                    <button class="btn btn-warning" onclick="submitOn()">CANCEL THE LEASE</button>
+                </form>
+                <hr>
+            </div>
+        </div>
     </div>
 </body>
 <footer th:insert="section/footer ::footer"></footer>
@@ -99,6 +167,20 @@
         tableDiv.style.display = 'block';
     }else{
         tableDiv.style.display = 'none';
+    }
+
+    let countTd = 0;
+    document.querySelectorAll('.tableInfo').forEach(item => {
+        console.log('ITEM: ', item);
+        document.querySelectorAll('.tableInfo tbody td').forEach(td => {
+            countTd++;
+        })
+    });
+
+    if(countTd > 0){
+        document.getElementById('customerRentalInfo').style.display = 'block';
+    }else{
+        document.getElementById('customerRentalInfo').style.display = 'none';
     }
 
     if(user.value.length !== 0){
@@ -155,6 +237,7 @@
         const isLoggedIn = objCookie && objCookie.login;
         const role = objCookie.role;
 
+        const linkUpdate = document.getElementById('userUpdate')
         const linkCustomer = document.getElementById('customerInfo');
         const linkLandlord = document.getElementById('landlordNewApartment');
         const linkCustomerRentalApartments = document.getElementById('customerRentalApartments');
@@ -171,10 +254,17 @@
             infoDiv.style.display = 'none';
             tableUserInfoDiv.style.display = 'block';
             if(role === 'customer'){
+                linkUpdate.style.display = 'block';
                 linkCustomer.style.display = 'block';
                 linkLandlord.style.display = 'none';
                 linkCustomerRentalApartments.style.display = 'block'
+            } else if(role === 'admin'){
+                linkUpdate.style.display = 'block';
+                linkCustomer.style.display = 'none';
+                linkLandlord.style.display = 'none';
+                linkCustomerRentalApartments.style.display = 'none'
             }else{
+                linkUpdate.style.display = 'none';
                 linkCustomer.style.display = 'none';
                 linkLandlord.style.display = 'block';
                 linkCustomerRentalApartments.style.display = 'none'
@@ -198,5 +288,17 @@
 
     function infoUpdate(id){
         document.location.href = '/customer/' + id + '/updateInfo';
+    }
+
+    function getRentalApartments(id){
+        document.location.href = '/customer/' + id + '/infoRental';
+    }
+
+    const formCancelLease = document.getElementById('formCancelLease');
+    function submitOn(){
+        const confirmation = confirm('Are you sure you want to cancel the lease?');
+        if(confirmation){
+            formCancelLease.submit();
+        }
     }
 </script>

@@ -1,11 +1,10 @@
 package com.example.dz_16_spring_book.controllers;
 
+import com.example.dz_16_spring_book.dto.ApartmentRentalCustomerInfo;
 import com.example.dz_16_spring_book.dto.CustomerInfo;
 import com.example.dz_16_spring_book.dto.UserUpdateDesire;
-import com.example.dz_16_spring_book.models.Customer;
-import com.example.dz_16_spring_book.models.District;
-import com.example.dz_16_spring_book.repositories.CustomerRepository;
-import com.example.dz_16_spring_book.repositories.DistrictRepository;
+import com.example.dz_16_spring_book.models.*;
+import com.example.dz_16_spring_book.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,9 +22,12 @@ public class CustomerController {
     private static final Logger logger = Logger.getLogger(CustomerController.class.getName());
     private final CustomerRepository customerRepository;
     private final DistrictRepository districtRepository;
+    private final ApartmentRentalRepository apartmentRentalRepository;
+    private final ApartmentImageRepository apartmentImageRepository;
+    private final UserRepository userRepository;
 
     @GetMapping("/customers")
-    public String getAllCustomers(Model model){
+    public String getAllCustomers(Model model) {
         List<Customer> customers = getAllCustomer();
         List<District> districts = getAllDistricts();
 
@@ -36,12 +38,12 @@ public class CustomerController {
     }
 
     @PostMapping("/customers/searchByName")
-    public String searchByName(@RequestParam String fullname, Model model){
+    public String searchByName(@RequestParam String fullname, Model model) {
         List<Customer> customers = getAllCustomer();
         List<District> districts = getAllDistricts();
         List<CustomerInfo> customerInfos;
 
-        if(fullname != null){
+        if (fullname != null) {
             List<Customer> filteredCustomers = customers
                     .stream()
                     .filter(item -> (item.getFirstName() + ' ' + item.getLastName()).toLowerCase()
@@ -55,12 +57,12 @@ public class CustomerController {
     }
 
     @PostMapping("/customers/searchByPhone")
-    public String searchByPhone(@RequestParam String phoneNumber, Model model){
+    public String searchByPhone(@RequestParam String phoneNumber, Model model) {
         List<Customer> customers = getAllCustomer();
         List<District> districts = getAllDistricts();
         List<CustomerInfo> customerInfos;
 
-        if(phoneNumber != null){
+        if (phoneNumber != null) {
             List<Customer> filteredCustomers = customers
                     .stream()
                     .filter(item -> item.getPhone().equals(phoneNumber))
@@ -77,17 +79,17 @@ public class CustomerController {
             @RequestParam int rooms,
             @RequestParam String district,
             @RequestParam double price,
-            Model model){
+            Model model) {
         List<Customer> customers = getAllCustomer();
         List<District> districts = getAllDistricts();
         List<Customer> filteredCustomers = new ArrayList<>();
 
         Long id = Long.parseLong(district);
 
-        for(var customer : customers){
-            if(customer.getNumberRooms() == rooms
+        for (var customer : customers) {
+            if (customer.getNumberRooms() == rooms
                     && customer.getDistrict().getId().equals(id)
-                    && customer.getPrice() == price){
+                    && customer.getPrice() == price) {
                 filteredCustomers.add(customer);
             }
         }
@@ -97,10 +99,10 @@ public class CustomerController {
     }
 
     @GetMapping("/customer/{id}/info")
-    public String getInfo(@PathVariable(name = "id") Long id, RedirectAttributes redirectAttributes){
+    public String getInfo(@PathVariable(name = "id") Long id, RedirectAttributes redirectAttributes) {
         Customer customer = customerRepository.findById(id).orElse(null);
         CustomerInfo customerInfo = new CustomerInfo();
-        if(customer != null){
+        if (customer != null) {
             customerInfo.setId(id);
             customerInfo.setFirstName(customer.getFirstName());
             customerInfo.setLastName(customer.getLastName());
@@ -117,7 +119,7 @@ public class CustomerController {
     }
 
     @GetMapping("/customer/{id}/updateInfo")
-    public String getUpdateInfo(@PathVariable(name = "id") Long id, Model model){
+    public String getUpdateInfo(@PathVariable(name = "id") Long id, Model model) {
         Customer customer = customerRepository.findById(id).orElse(null);
         List<District> districts = getAllDistricts();
         model.addAttribute("customer", customer);
@@ -126,24 +128,24 @@ public class CustomerController {
     }
 
     @PostMapping("/customer/{id}/updateInfo")
-    public String saveUpdateInfo(@PathVariable(name = "id") Long id, @ModelAttribute("user") UserUpdateDesire user){
+    public String saveUpdateInfo(@PathVariable(name = "id") Long id, @ModelAttribute("user") UserUpdateDesire user) {
         Customer customer = customerRepository.findById(id).orElse(null);
         District district = districtRepository.findById(user.getDistrict()).orElse(null);
-        if(customer != null){
-            if(user.getNumberRooms() != customer.getNumberRooms()){
-                 customer.setNumberRooms(user.getNumberRooms());
+        if (customer != null) {
+            if (user.getNumberRooms() != customer.getNumberRooms()) {
+                customer.setNumberRooms(user.getNumberRooms());
             }
 
-            if(user.getFloor() != customer.getFloor()){
+            if (user.getFloor() != customer.getFloor()) {
                 customer.setFloor(user.getFloor());
             }
 
-            if(user.getPrice() != customer.getPrice()){
+            if (user.getPrice() != customer.getPrice()) {
                 customer.setPrice(user.getPrice());
             }
 
-            if(district != null){
-                if(!user.getDistrict().equals(customer.getDistrict().getId())){
+            if (district != null) {
+                if (!user.getDistrict().equals(customer.getDistrict().getId())) {
                     customer.setDistrict(district);
                 }
             }
@@ -154,20 +156,70 @@ public class CustomerController {
         return "redirect:/";
     }
 
+    @GetMapping("/customer/{id}/infoRental")
+    public String getInfoRental(@PathVariable(name = "id") Long id, RedirectAttributes redirectAttributes) {
+        logger.info("ID: " + id);
+        List<ApartmentRental> apartmentRentals = getApartmentRentals();
+        var filteredApartmentRental = apartmentRentals.stream().filter(item -> id.equals(item.getCustomer().getId())).toList();
+        List<ApartmentRentalCustomerInfo> apartmentRentalCustomerInfos = new ArrayList<>();
+        List<ApartmentImage> apartmentImages = getApartmentImages();
 
-    private List<Customer> getAllCustomer(){
+        for (var apartmentRental : filteredApartmentRental) {
+            ApartmentRentalCustomerInfo info = new ApartmentRentalCustomerInfo();
+            info.setId(apartmentRental.getId());
+            info.setIdLandlord(apartmentRental.getLandlord().getId());
+            info.setFullNameLandlord(apartmentRental.getLandlord().getFirstName() +
+                    " " + apartmentRental.getLandlord().getLastName());
+            info.setEmailLandlord(apartmentRental.getLandlord().getEmail());
+            info.setPhoneLandlord(apartmentRental.getLandlord().getPhone());
+            info.setIdApartment(apartmentRental.getApartment().getId());
+            info.setAddressApartment(apartmentRental.getApartment().getAddress());
+            info.setRentAmountApartment(apartmentRental.getApartment().getRentAmount());
+            info.setBedroomsApartment(apartmentRental.getApartment().getBedrooms());
+            info.setDescriptionApartment(apartmentRental.getApartment().getDescription());
+            info.setDistrictApartment(apartmentRental.getApartment().getDistrict().getNameDistrict());
+            var filteredApartmentImages = apartmentImages.stream()
+                    .filter(item -> apartmentRental.getApartment().getId().equals(item.getApartment().getId()))
+                    .toList();
+            List<String> images = new ArrayList<>();
+            for (var image : filteredApartmentImages) {
+                images.add(image.getLinkImage());
+            }
+            info.setLinkImagesApartment(images.get(0));
+            apartmentRentalCustomerInfos.add(info);
+            info.setRentalDate(apartmentRental.getRentalDate());
+            info.setStartRentalDate(apartmentRental.getRentalStartDate());
+            info.setEndRentalDate(apartmentRental.getRentalEndDate());
+        }
+        redirectAttributes.addFlashAttribute("rentalCustomerInfos", apartmentRentalCustomerInfos);
+        return "redirect:/";
+    }
+
+    private List<ApartmentImage> getApartmentImages() {
+        List<ApartmentImage> apartmentImages = new ArrayList<>();
+        apartmentImageRepository.findAll().forEach(item -> apartmentImages.add(item));
+        return apartmentImages;
+    }
+
+    private List<ApartmentRental> getApartmentRentals() {
+        List<ApartmentRental> apartmentRentals = new ArrayList<>();
+        apartmentRentalRepository.findAll().forEach(item -> apartmentRentals.add(item));
+        return apartmentRentals;
+    }
+
+    private List<Customer> getAllCustomer() {
         List<Customer> customers = new ArrayList<>();
         customerRepository.findAll().forEach(item -> customers.add(item));
         return customers;
     }
 
-    private List<District> getAllDistricts(){
+    private List<District> getAllDistricts() {
         List<District> districts = new ArrayList<>();
         districtRepository.findAll().forEach(item -> districts.add(item));
         return districts;
     }
 
-    private List<CustomerInfo> setCustomerInfos(List<Customer> customers, List<District> districts){
+    private List<CustomerInfo> setCustomerInfos(List<Customer> customers, List<District> districts) {
         List<CustomerInfo> customerInfos = new ArrayList<>();
         for (var customer : customers) {
             CustomerInfo customerInfo = new CustomerInfo();
@@ -180,10 +232,10 @@ public class CustomerController {
             customerInfo.setNumberRooms(customer.getNumberRooms());
             customerInfo.setFloor(customer.getFloor());
             customerInfo.setPrice(customer.getPrice());
-            if(customer.getDistrict() != null){
+            if (customer.getDistrict() != null) {
                 logger.info("DISTRICT: " + customer.getDistrict().getId());
                 for (var district : districts) {
-                    if(district.getId().equals(customer.getDistrict().getId())){
+                    if (district.getId().equals(customer.getDistrict().getId())) {
                         logger.info("NANE DISTRICT: " + district.getNameDistrict());
                         customerInfo.setDistrict(district.getNameDistrict());
                     }

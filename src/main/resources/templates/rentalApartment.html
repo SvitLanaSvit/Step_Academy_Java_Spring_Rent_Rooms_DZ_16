@@ -7,6 +7,8 @@
 <header th:insert="section/header ::header"></header>
 <body>
   <div class="container">
+    <div th:if="${messageSuccess} != null" class="alert alert-success" th:text="${messageSuccess}"></div>
+    <div th:if="${message} != null" class="alert alert-danger" th:text="${message}"></div>
     <h3>RENTAL APARTMENT</h3>
     <div class="mb-3 w-25">
       <label>Choose the rental period:</label>
@@ -36,23 +38,36 @@
     </div>
 
     <div id="longTermDiv" style="display: none" class="shadow p-3 bg-white rounded">
-      <div class="mb-3 w-25">
-        <label for="startDate" class="form-label">Start date:</label>
-        <input type="text" id="startDate" name="startDate" />
-      </div>
-      <div class="mb-3 w-25">
-        <label for="months" class="form-label">Months:</label>
-        <input type="number" class="form-control" id="months" name="months" min="1" value="1" required>
-      </div>
-      <div style="margin-top: 10px;">
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
+      <form th:action="'/rental/' + ${rental.getId()} + '/apartment'" method="post">
+        <div class="mb-3 w-25">
+          <label for="startDate" class="form-label">Start date:</label>
+          <input type="text" id="startDate" name="startDate" />
+        </div>
+        <div class="mb-3 w-25">
+          <label for="months" class="form-label">Months:</label>
+          <input type="number" class="form-control" id="months" name="months" min="1" value="1" required>
+        </div>
+        <div style="margin-top: 10px;">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
     </div>
   </div>
 </body>
 <footer th:insert="section/footer ::footer"></footer>
 </html>
 <script>
+  window.onload = function() {
+    setTimeout(function() {
+      const messageDiv = document.querySelector('.alert.alert-danger');
+      const messageDivSuccess = document.querySelector('.alert.alert-success');
+      if (messageDiv) {
+        messageDiv.style.display = 'none';
+      }else if(messageDivSuccess){
+        messageDivSuccess.style.display = 'none';
+      }
+    }, 3000); // 3000 milliseconds = 3 seconds
+  };
   function showDiv() {
     // Get the value of the selected radio button
     const role = document.querySelector('input[name="dateTypeRental"]:checked').value;
@@ -80,7 +95,7 @@
   //----------RANGE DATE------------------------------------------------------
   $(function() {
     // const start = moment().subtract(29, 'days');
-    const start = moment();
+    const start = moment().add(1, 'days');
     const end = moment().add(29, 'days');
 
     function cb(start, end) {
@@ -91,13 +106,13 @@
       startDate: start,
       endDate: end,
       ranges: {
-        'Today': [moment(), moment()],
+        // 'Today': [moment(), moment()],
         // 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        'Tomorrow': [moment(), moment().add(1, 'days')],
+        'Tomorrow': [moment().add(1,'days'), moment().add(1, 'days')],
         // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-        'Next 7 Days': [moment(), moment().add(6, 'days')],
+        'Next 7 Days': [moment().add(1,'days'), moment().add(6, 'days')],
         // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-        'Next 30 Days': [moment(), moment().add(29, 'days')],
+        'Next 30 Days': [moment().add(1,'days'), moment().add(29, 'days')],
         // 'This Month': [moment().startOf('month'), moment().endOf('month')],
         // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
       }

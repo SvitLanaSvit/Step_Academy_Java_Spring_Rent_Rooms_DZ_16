@@ -54,7 +54,7 @@
     </div>
     <div style="display: flex; justify-content: space-between">
       <a th:href="'/rental'" class="btn btn-secondary">Back</a>
-      <form th:action="'/rental/' + ${rental.getId()} + '/apartment'" method="post" class="rentalForm">
+      <form th:action="'/rental/' + ${rental.getId()} + '/apartment'" method="get" class="rentalForm">
         <button type="submit" class="btn btn-success">Rent</button>
       </form>
     </div>
